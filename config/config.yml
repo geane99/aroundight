@@ -1,0 +1,33 @@
+game_server:
+  host: gbf.game.mbga.jp
+  port: 80
+  protocol: http
+  encoding: UTF-8
+  version: 1.0.0
+  timeout: 5000
+  debug: true
+  cookie: - 
+  bookmaker_context: /teamraid%03d/bookmaker/content/top
+  score_qualifying_context: /teamraid%03d/ranking_guild/content/detail/%d
+  score_seed_context: /teamraid%03d/ranking_seedguild/content/detail/%d
+  score_individual_context: /teamraid%03d/ranking_user/content/detail/%d
+
+public_server:
+  host: -
+  port: 21
+  protocol: ftp
+  encoding: UTF-8
+  version: 1.0.0
+  context: /granbluefantasy/battlefield/data
+  user: -
+  password: -
+  timeout: 5000
+  debug: true
+
+local_server:
+  repo_dir: /data/batch/aroundight/site
+
+logger:
+  file: /data/batch/aroundight/log/aroundight
+  level: INFO
+  
