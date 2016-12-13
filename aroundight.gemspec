@@ -9,10 +9,10 @@ Gem::Specification.new do |spec|
   spec.authors       = ["geane99"]
   spec.email         = ["geane75@gmail.com"]
 
-  spec.summary       = ""
-  spec.description   = ""#"古戦場データのうち、団予選（通常・シード）、個人（1000,3000）、ブックメーカーのデータを収集するための機能".scrub(?)
+  spec.summary       = "Granbluefantasy during the battlefield preriod, It is tool to collect activity status."
+  spec.description   = "It is tool to collect 'Qualifing team scorers', 'Seed team scorers', 'Individual total scorers', 'bookmaker scorers'"
   spec.homepage      = "https://github.com/geane99/aroundight"
-  spec.license       = "Apache License 2.0"
+  spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
