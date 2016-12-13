@@ -3,9 +3,9 @@ set :environment, :prod
 set :raidid, '26'
   
 every '*/15 * * * *' do
-  rake 'highscore[#{:raidid}]'
+  rake 'highscore[26]'
 end
 
 every '*/20 * * * *' do
-  rake 'bookmaker[#{:raidid}]'
+  rake 'bookmaker[26]'
 end
