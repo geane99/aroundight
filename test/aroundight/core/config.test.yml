@@ -1,0 +1,33 @@
+game_server:
+  host: test.game.server
+  port: 80
+  protocol: http
+  encoding: UTF-8
+  version: 1.0.0
+  timeout: 5000
+  debug: true
+  cookie: test-cookie 
+  bookmaker_context: test_bookmaker_context
+  score_qualifying_context: test_score_qualifying_context
+  score_seed_context: test_score_seed_context
+  score_individual_context: test_individual_context
+
+public_server:
+  host: test.public.server
+  port: 21
+  protocol: ftp
+  encoding: UTF-8
+  version: 1.0.0
+  context: public_context
+  user: test-user
+  password: test-password
+  timeout: 5000
+  debug: true
+
+local_server:
+  repo_dir: /test/local/server/dir
+
+logger:
+  file: /test/log/dir
+  level: INFO
+  

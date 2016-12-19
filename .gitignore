@@ -9,3 +9,5 @@
 /tmp/
 /config/*.live.yml
 config/*.live.yml
+config/config.local.yml
+config/config.prod.yml

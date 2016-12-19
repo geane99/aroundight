@@ -14,7 +14,7 @@ module Aroundight
     end
     
     def build!
-      conf = load_yaml "config.yml"
+      conf = load_yaml "config"
       @public_server = conf["public_server"]
       @local_server = conf["local_server"]
       @local_repo = DataRepository.new

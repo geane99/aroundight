@@ -6,21 +6,21 @@ game_server:
   version: 1.0.0
   timeout: 5000
   debug: true
-  cookie: - 
+  cookie: coooooookie!
   bookmaker_context: /teamraid%03d/bookmaker/content/top
   score_qualifying_context: /teamraid%03d/ranking_guild/content/detail/%d
   score_seed_context: /teamraid%03d/ranking_seedguild/content/detail/%d
   score_individual_context: /teamraid%03d/ranking_user/content/detail/%d
 
 public_server:
-  host: -
+  host: hostname
   port: 21
   protocol: ftp
   encoding: UTF-8
   version: 1.0.0
   context: /granbluefantasy/battlefield/data
-  user: -
-  password: -
+  user: user
+  password: passwd
   timeout: 5000
   debug: true
 

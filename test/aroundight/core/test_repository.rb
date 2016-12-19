@@ -23,7 +23,7 @@ class TestRepository < Test::Unit::TestCase
     repo = Aroundight::Repository.new
     repo.class.class_variable_set(:@@yaml_repository, @yaml_repo)
     
-    config = repo.load_yaml "test_yaml_repository.yml"
+    config = repo.load_yaml "test_yaml_repository"
     
     assert_equal config["test"]["property1"], "property1-value"
     assert_equal config["test"]["property2"], "property2-value"
