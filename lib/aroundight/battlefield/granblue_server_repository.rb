@@ -75,18 +75,84 @@ module Aroundight
 
     private
     def http_get url
-      to_html @server.url(url).get
+      logger.info "[http-get] #{url}"
+      data = to_html(@server.url(url).get)
+      
+      return data if data["error"] != nil and data["redirect"] != nil
+      
+      if data["error"] != nil
+        upgrade_connection_info "#{@conf['server_url']}#{@conf['xversion_context']}"
+      end
+
+      if data["redirect"] != nil
+        redirect_url = mobage_json_redirect data["redirect"]
+        upgrade_connection_info redirect_url
+      end
+      
+      logger.info "[http-get] #{url}"
+      build!
+      to_html(@server.url(url).get)
     end
     
     def to_html text
       jsonstr = Kconv.tosjis(text)
-      data = JSON.parse(jsonstr)
-      logger.info data
-      if data == nil
-        logger.error data
-        raise "error"
-      end
-      data
+      JSON.parse(jsonstr)
+    end
+    
+    def mobage_json_redirect url
+      logger.info "[redirect(json)] #{url}"
+      @server = create_http_repository @conf
+      @server
+        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+        .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
+        .header("Connection", "keep-alive")
+        .header("Cookie", @conf["platform_cookie"])
+        .header("Upgrade-Insecure-Requests", "1")
+        .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
+      response = @server.url(url).get_exec
+      redirect_url = nil
+      response.each_header{|name,val|
+        redirect_url = val if name == "location"
+      }
+      redirect_url
+    end
+    
+    def upgrade_connection_info url
+      logger.info "[redirect(upgrade)] #{url}"
+      @server = create_http_repository @conf
+      @server
+        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+        .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
+        .header("Cache-Control", "max-age=0")
+        .header("Connection", "keep-alive")
+        .header("Cookie", @conf["cookie"])
+        .header("Upgrade-Insecure-Requests", "1")
+        .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
+      response = @server.url(url).get_exec
+      cookie_str = nil
+      response.each_header{|name,val|
+        cookie_str = val if name == "set-cookie"
+      }
+      keyset = []
+      cookie_str = cookie_str.split("; ").map{|e| 
+        next if keyset.include? name
+        keyset << name
+        URI.decode e
+      }.join("; ")
+
+      parser = -> (data, word){
+        scanner = StringScanner.new(data)
+        index = scanner.scan_until(word).size
+        data[index, 20].match(/([0-9]+)/)[0]
+      }
+      xversion = parser.(response.body, /Game\.version = /)
+      logger.info "[upgrade(cookie)] #{cookie_str}"
+      logger.info "[upgrade(xversion)] #{xversion}"
+      
+      @conf["cookie"] = cookie_str
+      @conf["xversion"] = xversion
+      
+      update_conf
     end
 
     def config
@@ -106,10 +172,18 @@ module Aroundight
         .header("Content-Type", "application/json")
         .header("Cookie", @conf["cookie"])
         .header("Cache-Control", "max-age=0")
+        .header("Host", @conf["host"])
+        .header("Origin", @conf["server_url"])
         .header("Referer", "#{@conf['server_url']}")
         .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
         .header("X-Requested-With","XMLHttpRequest")
         .header("X-VERSION", @conf["xversion"])
+    end
+    
+    def update_conf
+      conf = load_yaml "config"
+      conf["game_server"] = @conf
+      save_yaml conf, "config"
     end
   end
 end

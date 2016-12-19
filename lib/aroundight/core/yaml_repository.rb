@@ -17,6 +17,15 @@ module Aroundight
       end
       return @store[f]
     end
+    
+    def save_yaml obj, filename
+      by_env = by_environment? filename
+      f = by_env ? "#{filename}.#{@env}.yml" : "#{filename}.yml"
+      @store[f] = obj
+      File.open("#{@dir}/#{f}","w"){|file|
+        YAML.dump obj, file
+      }
+    end
 
     private
     def load_yaml_default

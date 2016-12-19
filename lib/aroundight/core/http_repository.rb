@@ -46,6 +46,11 @@ module Aroundight
     end
     
     def get
+      res = get_exec
+      res.body
+    end
+    
+    def get_exec
       url = @uri.to_s.strip
       
       unless url.include? "?"
@@ -81,8 +86,14 @@ module Aroundight
         http.read_timeout = @server_config["timeout"]
         yield http
       end
+      if logger.debug?
+        response.each_header{|name,val|
+          logger.debug "[response header] #{name} = #{val}"
+        }
+        logger.debug response.body
+      end
       response.body.force_encoding @server_config["encoding"]
-      response.body
+      response
     end
     
   end
