@@ -40,6 +40,7 @@ module Aroundight
       parser = -> (pagenum){
         url = "#{@conf['server_url']}#{@conf['score_individual_context']}" % [raidid, pagenum]
         data = http_get(url)
+        p data
         lastid = data["list"].map{|k,v| k.to_i}.sort.last
         data["list"][lastid.to_s]["point"]
       }
@@ -97,16 +98,17 @@ module Aroundight
     end
     
     def build!
-      @server.
-        header("X-VERSION", @conf["xversion"]).
-        header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6").
-        header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5").
-        header("Accept", "application/json, text/javascript, */*; q=0.01").
-        header("Referer", "#{@conf['server_url']}").
-        header("X-Requested-With","XMLHttpRequest").
-        header("Cookie", @conf["cookie"]).
-        header("Connection", "keep-alive").
-        header("Cache-Control", "max-age=0")
+      @server
+        .header("Accept", "application/json, text/javascript, */*; q=0.01")
+        .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
+        .header("Connection", "keep-alive")
+        .header("Content-Type", "application/json")
+        .header("Cookie", @conf["cookie"])
+        .header("Cache-Control", "max-age=0")
+        .header("Referer", "#{@conf['server_url']}")
+        .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
+        .header("X-Requested-With","XMLHttpRequest")
+        .header("X-VERSION", @conf["xversion"])
     end
   end
 end
