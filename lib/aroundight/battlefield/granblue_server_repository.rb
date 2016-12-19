@@ -40,7 +40,6 @@ module Aroundight
       parser = -> (pagenum){
         url = "#{@conf['server_url']}#{@conf['score_individual_context']}" % [raidid, pagenum]
         data = http_get(url)
-        p data
         lastid = data["list"].map{|k,v| k.to_i}.sort.last
         data["list"][lastid.to_s]["point"]
       }
@@ -83,6 +82,7 @@ module Aroundight
       jsonstr = Kconv.tosjis(text)
       data = JSON.parse(jsonstr)
       if data == nil
+        logger.error data
         raise "error"
       end
       data

@@ -165,7 +165,6 @@ class TestBattlefiedService < Test::Unit::TestCase
     results << @service.update_bookmaker_score(1, @@finals3_10)
     results << @service.update_bookmaker_score(1, @@finals4_1)
     results << @service.update_bookmaker_score(1, @@finals4_2)
-    p results
     obj = results.compact.last
     scores = (1..5).map{|each| obj["round#{each}"]["score"]}.flatten
     

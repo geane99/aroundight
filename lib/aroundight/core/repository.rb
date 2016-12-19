@@ -13,5 +13,9 @@ module Aroundight
     def load_yaml filename
       @@yaml_repository.load_yaml filename
     end
+    
+    def logger
+      @@logger
+    end
   end
 end
