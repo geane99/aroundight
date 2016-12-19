@@ -135,8 +135,8 @@ module Aroundight
       }
       keyset = []
       cookie_str = cookie_str.split("; ").map{|e| 
-        next if keyset.include? name
-        keyset << name
+        next if keyset.include? e
+        keyset << e
         URI.decode e
       }.join("; ")
 
