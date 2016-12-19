@@ -5,7 +5,8 @@ module Aroundight
   class Repository
     def initialize
       @@yaml_repository = YamlRepository.new
-      @@logger = Logger.new STDOUT
+      @@logger_conf = @@yaml_repository.load_yaml("config")["logger"]
+      @@logger = Logger.new @@logger_conf["file"]
       @@logger.level = Logger::INFO
     end
     
