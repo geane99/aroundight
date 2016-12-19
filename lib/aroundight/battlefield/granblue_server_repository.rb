@@ -81,6 +81,7 @@ module Aroundight
     def to_html text
       jsonstr = Kconv.tosjis(text)
       data = JSON.parse(jsonstr)
+      logger.info data
       if data == nil
         logger.error data
         raise "error"
