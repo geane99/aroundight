@@ -1,4 +1,5 @@
 require 'net/http'
+require 'openssl'
 require 'uri'
 require File.expand_path('../repository', __FILE__)
 
@@ -81,18 +82,38 @@ module Aroundight
     end
 
     def execute
-      response = Net::HTTP.start(@uri.host, @uri.port, use_ssl: @uri.scheme == 'https') do |http|
+      if logger.debug?
+        @header.each{|k,v| logger.debug "[request header] #{k} = #{v}"}
+      end
+      response = Net::HTTP.start(@uri.host, @uri.port, use_ssl: @uri.scheme == 'https', :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
         http.open_timeout = @server_config["timeout"]
         http.read_timeout = @server_config["timeout"]
         yield http
       end
       if logger.debug?
+        logger.debug "[response body] #{response.body}"
         response.each_header{|name,val|
           logger.debug "[response header] #{name} = #{val}"
         }
-        logger.debug response.body
       end
       response.body.force_encoding @server_config["encoding"]
+      def response.cookie
+        cookie_str = nil
+        self.each_header{|name,val|
+          cookie_str = val if name == "set-cookie"
+          break if name == "set-cookie"
+        }
+        cookie_str
+      end
+      
+      def response.location
+        redirect_url = nil
+        self.each_header{|name,val|
+          redirect_url = val if name == "location"
+          break if name == "location"
+        }
+        redirect_url
+      end
       response
     end
     

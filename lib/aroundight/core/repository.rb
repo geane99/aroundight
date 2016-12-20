@@ -17,7 +17,7 @@ module Aroundight
     end
     
     def save_yaml obj, filename
-      logger.debug "[yaml-save] #{filename} = #{obj}" if logger.debug?
+      logger.debug "[yaml-save] #{filename} = #{obj}" if logger.info?
       @@yaml_repository.save_yaml obj, filename 
     end
     

@@ -74,11 +74,18 @@ module Aroundight
     end
 
     private
+    def to_html text
+      jsonstr = Kconv.tosjis(text)
+      JSON.parse(jsonstr)
+    end
+
     def http_get url
       logger.info "[http-get] #{url}"
-      data = to_html(@server.url(url).get)
+      res = @server.url(url).get_exec
+      update_cookie @conf["cookie"], res.cookie, url
+      data = to_html res.body
       
-      return data if data["error"] != nil and data["redirect"] != nil
+      return data if data["error"] == nil and data["redirect"] == nil
       
       if data["error"] != nil
         upgrade_connection_info "#{@conf['server_url']}#{@conf['xversion_context']}"
@@ -86,17 +93,19 @@ module Aroundight
 
       if data["redirect"] != nil
         redirect_url = mobage_json_redirect data["redirect"]
-        upgrade_connection_info redirect_url
+        if redirect_url.include? @conf["host"]
+          upgrade_connection_info redirect_url
+        else
+          tokenurl = mobage_platform_redirect redirect_url
+          upgrade_connection_info tokenurl
+        end
       end
       
       logger.info "[http-get] #{url}"
       build!
-      to_html(@server.url(url).get)
-    end
-    
-    def to_html text
-      jsonstr = Kconv.tosjis(text)
-      JSON.parse(jsonstr)
+      res = @server.url(url).get_exec
+      update_cookie @conf["cookie"], res.cookie, url
+      data = to_html res.body
     end
     
     def mobage_json_redirect url
@@ -106,15 +115,36 @@ module Aroundight
         .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
         .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
         .header("Connection", "keep-alive")
-        .header("Cookie", @conf["platform_cookie"])
+        .header("Cookie", get_cookie(url))
         .header("Upgrade-Insecure-Requests", "1")
         .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
       response = @server.url(url).get_exec
-      redirect_url = nil
-      response.each_header{|name,val|
-        redirect_url = val if name == "location"
-      }
-      redirect_url
+      redirect_url = response.location
+    end
+    
+    def mobage_platform_redirect url
+      redirect_url = url
+      count = 0
+      while redirect_url != nil and count < 4 do
+        logger.info "[redirect(mobage)] #{redirect_url}"
+        @server = create_http_repository @conf
+        response = @server
+          .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+          .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
+          .header("Connection", "keep-alive")
+          .header("Cookie", get_cookie(redirect_url))
+          .header("Upgrade-Insecure-Requests", "1")
+          .header("Host", redirect_url.split("/")[2])
+          .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
+          .url(url)
+          .get_exec
+        update_cookie @conf["platform_cookie"], response.cookie, redirect_url
+        re_redirect_url = response.location
+        break if redirect_url.split("?")[0] == re_redirect_url.split("?")[0]
+        redirect_url = re_redirect_url
+
+        count += 1
+      end
     end
     
     def upgrade_connection_info url
@@ -125,20 +155,11 @@ module Aroundight
         .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
         .header("Cache-Control", "max-age=0")
         .header("Connection", "keep-alive")
-        .header("Cookie", @conf["cookie"])
+        .header("Cookie", get_cookie(url))
         .header("Upgrade-Insecure-Requests", "1")
         .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
       response = @server.url(url).get_exec
-      cookie_str = nil
-      response.each_header{|name,val|
-        cookie_str = val if name == "set-cookie"
-      }
-      keyset = []
-      cookie_str = cookie_str.split("; ").map{|e| 
-        next if keyset.include? e
-        keyset << e
-        URI.decode e
-      }.join("; ")
+      cookie_str = response.cookie
 
       parser = -> (data, word){
         scanner = StringScanner.new(data)
@@ -149,12 +170,25 @@ module Aroundight
       logger.info "[upgrade(cookie)] #{cookie_str}"
       logger.info "[upgrade(xversion)] #{xversion}"
       
-      @conf["cookie"] = cookie_str
       @conf["xversion"] = xversion
-      
-      update_conf
+      update_cookie @conf["cookie"], cookie_str, url
     end
 
+    def build!
+      @server
+        .header("Accept", "application/json, text/javascript, */*; q=0.01")
+        .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
+        .header("Connection", "keep-alive")
+        .header("Content-Type", "application/json")
+        .header("Cookie", get_cookie(@conf["host"]))
+        .header("Cache-Control", "max-age=0")
+        .header("Host", @conf["host"])
+        .header("Referer", "#{@conf['server_url']}")
+        .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
+        .header("X-Requested-With","XMLHttpRequest")
+        .header("X-VERSION", @conf["xversion"])
+    end
+    
     def config
       conf = load_yaml "config"
       conf["game_server"]
@@ -164,20 +198,36 @@ module Aroundight
       HttpRepository.new conf
     end
     
-    def build!
-      @server
-        .header("Accept", "application/json, text/javascript, */*; q=0.01")
-        .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
-        .header("Connection", "keep-alive")
-        .header("Content-Type", "application/json")
-        .header("Cookie", @conf["cookie"])
-        .header("Cache-Control", "max-age=0")
-        .header("Host", @conf["host"])
-        .header("Origin", @conf["server_url"])
-        .header("Referer", "#{@conf['server_url']}")
-        .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
-        .header("X-Requested-With","XMLHttpRequest")
-        .header("X-VERSION", @conf["xversion"])
+    def get_cookie url
+      host = url.split("/")[2]
+      if host == @conf["platform_host"]
+        return @conf["platform_cookie"]
+      elsif host == @conf["auth_host"]
+        return @conf["auth_cookie"]
+      else
+        return @conf["cookie"]
+      end
+    end
+    
+    def update_cookie cookiebase, cookienew, url
+      procmap = -> e {
+        i = e.index("=")
+        [e[0,i].strip,e[1+i,e.length] != nil ? e[1+i,e.length].strip : ""] if e.include? "="
+      }
+      a1 = cookiebase.split(";").map(&procmap).compact
+      a2 = cookienew.split("; ").map(&procmap).compact
+      hash = Hash[a1].merge Hash[a2]
+      cookie = hash.map{|k,v| "#{k}=#{v}"}.join("; ")
+      
+      host = url.split("/")[2]
+      if host == @conf["platform_host"]
+        @conf["platform_cookie"] = cookie
+      elsif host == @conf["auth_host"]
+        @conf["auth_cookie"] = cookie
+      else
+        @conf["cookie"] = cookie
+      end
+      update_conf
     end
     
     def update_conf
