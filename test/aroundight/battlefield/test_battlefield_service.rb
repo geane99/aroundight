@@ -237,7 +237,7 @@ class TestBattlefiedService < Test::Unit::TestCase
     now = DateTime.now
     exp_min = now.min - now.min % 60
     expect = DateTime.new now.year, now.month, now.day, now.hour, exp_min, 0, DateTime.now.offset
-    was = Aroundight::BattlefieldService.correct_20_date_now
+    was = Aroundight::BattlefieldService.correct_60_date_now
     assert_equal expect, was
   end
 end

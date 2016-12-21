@@ -16,7 +16,7 @@ module Aroundight
   end
 
   def self.ranking raidid
-    date = DateTime.now
+    date = self.correct_60_date_now
     service = self.create_service
     service.update_ranking_score raidid, date
   end
@@ -53,5 +53,9 @@ module Aroundight
   
   def self.correct_20_date_now
     Aroundight::BattlefieldService.correct_20_date_now
+  end
+
+  def self.correct_60_date_now
+    Aroundight::BattlefieldService.correct_60_date_now
   end
 end
