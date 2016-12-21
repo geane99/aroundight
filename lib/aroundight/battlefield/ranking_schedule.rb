@@ -38,7 +38,6 @@ module Aroundight
         
     def cover? datetime
       unless @term.cover? datetime then return false end 
-      if cover_interval? datetime then return false end
       if out_of_term? datetime then return false end
       return true
     end
