@@ -72,6 +72,13 @@ module Aroundight
         "time"=>time.strftime("%Y-%m-%d %H:%M:%S")
       }
     end
+    
+    def update_connect
+      url = "#{@conf['server_url']}#{@conf["update_cookie_context"]}"
+      logger.info "[http-get] #{url}"
+      res = @server.url(url).get_exec
+      update_cookie @conf["cookie"], res.cookie, url
+    end
 
     private
     def to_html text

@@ -26,3 +26,11 @@ end
 task :highscore, ['raidid'] do |task, args|
   Aroundight::highscore *args
 end
+
+task :ranking, ['raidid'] do |task, args|
+  Aroundight::ranking *args
+end
+
+task :qualifying, ['raidid'] do |task, args|
+  Aroundight::qualifying *args
+end

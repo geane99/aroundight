@@ -78,7 +78,10 @@ module Aroundight
     private
     def _update conf
       domain = conf["load"].(@publish_server,conf["raidid"])
-      return unless domain.cover? conf["time"]
+      unless domain.cover? conf["time"]
+        @game_server.update_connect
+        return
+      end
       score = conf["get"].(@game_server, conf["raidid"], conf["time"])
       domain.add_score! conf["time"], score
       conf["save"].(@publish_server, domain)
