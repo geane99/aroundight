@@ -28,10 +28,10 @@ module Aroundight
       }
       
       {
-        "south"=> parser.(/<div class="lis-area area1">\n\t{6}<div class="point">/), 
-        "north"=> parser.(/<div class="lis-area area2">\n\t{6}<div class="point">/), 
+        "north"=> parser.(/<div class="lis-area area1">\n\t{6}<div class="point">/), 
+        "west"=> parser.(/<div class="lis-area area2">\n\t{6}<div class="point">/), 
         "east" => parser.(/<div class="lis-area area3">\n\t{6}<div class="point">/), 
-        "west" => parser.(/<div class="lis-area area4">\n\t{6}<div class="point">/), 
+        "south" => parser.(/<div class="lis-area area4">\n\t{6}<div class="point">/), 
         "time" => time.strftime("%Y-%m-%d %H:%M:%S")
       }
     end
@@ -75,7 +75,7 @@ module Aroundight
     
     def update_connect
       url = "#{@conf['server_url']}#{@conf["update_cookie_context"]}"
-      logger.info "[http-get] #{url}"
+      logger.info "[session-update] #{url}"
       res = @server.url(url).get_exec
       update_cookie @conf["cookie"], res.cookie, url
     end

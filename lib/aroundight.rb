@@ -5,11 +5,11 @@ require File.expand_path("../aroundight/version",__FILE__)
 module Aroundight
   def self.bookmaker raidid
     service = self.create_service
-    service.update_bookmaker_score raidid, self.correct_20_date_now
+    service.update_bookmaker_score raidid, self.correct_15_date_now
   end
   
   def self.highscore raidid
-    date = self.correct_15_date_now
+    date = self.correct_20_date_now
     service = self.create_service
     service.update_ranking_score raidid, date
     service.update_qualifying_score raidid, date
@@ -22,7 +22,7 @@ module Aroundight
   end
   
   def self.qualifying raidid
-    date = self.correct_15_date_now
+    date = self.correct_20_date_now
     service = self.create_service
     service.update_qualifying_score raidid, date
   end
