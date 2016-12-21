@@ -35,7 +35,10 @@ module Aroundight
         "time" => time.strftime("%Y-%m-%d %H:%M:%S")
       }
     end
-    
+west = south = foo
+south = north = bar
+north = west = hoge
+
     def get_ranking_score raidid, time
       parser = -> (pagenum){
         url = "#{@conf['server_url']}#{@conf['score_individual_context']}" % [raidid, pagenum]
@@ -193,7 +196,6 @@ module Aroundight
         .header("Referer", "#{@conf['server_url']}")
         .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
         .header("X-Requested-With","XMLHttpRequest")
-        .header("X-VERSION", @conf["xversion"])
     end
     
     def config
