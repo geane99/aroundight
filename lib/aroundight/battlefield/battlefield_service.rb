@@ -13,6 +13,7 @@ module Aroundight
       }
       @@correct_date_now_15 = @@correct_date.curry.call(15)
       @@correct_date_now_20 = @@correct_date.curry.call(20)
+      @@correct_date_now_60 = @@correct_date.curry.call(60)
       def correct_date timebase, correct
         @@correct_date.(timebase, correct)
       end
@@ -23,6 +24,10 @@ module Aroundight
       
       def correct_20_date_now
         @@correct_date_now_20.(DateTime.now)
+      end
+      
+      def correct_60_date_now
+        @@correct_date_now_60.(DateTime.now)
       end
     end
     

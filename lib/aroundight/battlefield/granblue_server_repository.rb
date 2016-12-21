@@ -35,9 +35,6 @@ module Aroundight
         "time" => time.strftime("%Y-%m-%d %H:%M:%S")
       }
     end
-west = south = foo
-south = north = bar
-north = west = hoge
 
     def get_ranking_score raidid, time
       parser = -> (pagenum){
