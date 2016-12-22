@@ -217,6 +217,7 @@ module Aroundight
     end
     
     def update_cookie cookiebase, cookienew, url
+      return if cookienew == nil or cookienew.empty?
       procmap = -> e {
         i = e.index("=")
         [e[0,i].strip,e[1+i,e.length] != nil ? e[1+i,e.length].strip : ""] if e.include? "="
