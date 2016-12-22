@@ -178,5 +178,28 @@ class TestBookmakerSchedule < Test::Unit::TestCase
     scored = DateTime.new 2016, 12, 26, 9, 30, 0, @now.offset
     @schedule.add_score! scored, { "east" => "200", "west" => "300", "south" => "400", "north" => "500" }
     assert_equal @schedule.instance_variable_get(:@round2)["score"][1]["east"], "200"
+      
+    scored = DateTime.new 2016, 12, 26, 9, 45, 0, @now.offset
+    @schedule.add_score! scored, { "east" => "200", "west" => "300", "south" => "400", "north" => "500" }
+    assert_equal 2, @schedule.instance_variable_get(:@round2)["score"].length
+  end
+  
+  def test_round_cover?
+    round2 = @schedule.instance_variable_get(:@round2)
+
+    current = DateTime.new 2016, 12, 26, 0, 0, 0, @now.offset
+    assert_false round2.cover?(current)
+    
+    current = DateTime.new 2016, 12, 26, 6, 59, 59, @now.offset
+    assert_false round2.cover?(current)
+
+    current = DateTime.new 2016, 12, 26, 7, 0, 0, @now.offset
+    assert_true round2.cover?(current)
+
+    current = DateTime.new 2016, 12, 27, 0, 14, 59, @now.offset
+    assert_true round2.cover?(current)
+    
+    current = DateTime.new 2016, 12, 27, 0, 15, 0, @now.offset
+    assert_false round2.cover?(current)
   end
 end

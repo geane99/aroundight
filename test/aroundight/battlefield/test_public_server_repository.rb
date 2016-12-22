@@ -60,7 +60,7 @@ class TestPublicServerRepository < Test::Unit::TestCase
     schedule = Aroundight::QualifyingSchedule.new @start_t, @end_t, 2, 1
     schedule.id = 1
     scored = DateTime.new 2016, 12, 23, 18, 0, 0, @now.offset
-    schedule.add_score! scored, { "qualifying120" => "100", "qualifying2400" => "200", "seed120" => "3000", "seed660" => "4000", "time" => "2016-12-23 18:00:00" }
+    schedule.add_score! scored, { "qualifying120" => "100", "qualifying2400" => "200", "qualifying3000" => "300", "seed120" => "3000", "seed660" => "4000", "time" => "2016-12-23 18:00:00" }
       
     @repo.save_qualifying_schedule schedule
     loadschedule = @repo.load_qualifying_schedule schedule.id

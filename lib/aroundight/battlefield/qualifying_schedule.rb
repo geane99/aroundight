@@ -14,9 +14,7 @@ module Aroundight
     end
     
     def add_score! time, score
-      if cover? time and not duplicate? @score, time
-        @score << score
-      end
+      @score << score if cover? time and not duplicate?(@score, time) and not last_eql? score
     end
     
     def to_hash
@@ -38,6 +36,22 @@ module Aroundight
     
     def cover? datetime
       cover_qualifying? datetime
-    end    
+    end
+    
+    private
+    def last_eql? score
+      eql = true
+      last_score = @score.last
+      return false if last_score == nil or last_score.empty?  
+      
+      last_score.each{|k,v|
+        next if k == "time"
+        if score[k] != v
+          eql = false
+          break
+        end
+      }
+      return eql
+    end
   end
 end

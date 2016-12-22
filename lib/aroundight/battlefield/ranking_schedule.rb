@@ -16,7 +16,7 @@ module Aroundight
     end
     
     def add_score! time, score
-      @score << score if cover? time and not duplicate? @score, time
+      @score << score if cover? time and not duplicate?(@score, time) and not last_eql? score
     end
     
     def to_hash
@@ -43,6 +43,21 @@ module Aroundight
     end
     
     private
+    def last_eql? score
+      eql = true
+      last_score = @score.last
+      return false if last_score == nil or last_score.empty?  
+      
+      last_score.each{|k,v|
+        next if k == "time"
+        if score[k] != v
+          eql = false
+          break
+        end
+      }
+      return eql
+    end
+    
     def build_out_of_term
       to_finals_out_of_term_start = -> date {
         DateTime.new date.year, date.month, date.day, 0, 15, 0, date.offset

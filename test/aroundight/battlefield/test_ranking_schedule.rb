@@ -89,7 +89,7 @@ class TestRankingSchedule < Test::Unit::TestCase
     assert_true @schedule.cover?(current)
 
     current = DateTime.new 2016, 12, 24, 23, 59, 59, @now.offset
-    assert_false @schedule.cover?(current)
+    assert_true @schedule.cover?(current)
     
     current = DateTime.new 2016, 12, 25, 6, 59, 59, @now.offset
     assert_false @schedule.cover?(current)
@@ -123,5 +123,9 @@ class TestRankingSchedule < Test::Unit::TestCase
     scored = DateTime.new 2016, 12, 26, 18, 15, 0, @now.offset
     @schedule.add_score! scored, { "ranking1000" => "10000", "ranking3000" => "20000", "time" => "2016-12-26 18:15:00" }
     assert_equal @schedule.instance_variable_get(:@score)[1]["ranking1000"], "10000"
+      
+    scored = DateTime.new 2016, 12, 26, 18, 30, 0, @now.offset
+    @schedule.add_score! scored, { "ranking1000" => "10000", "ranking3000" => "20000", "time" => "2016-12-26 18:30:00" }
+    assert_equal 2, @schedule.instance_variable_get(:@score).length
   end
 end

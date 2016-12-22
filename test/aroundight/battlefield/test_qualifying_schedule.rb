@@ -31,7 +31,7 @@ class TestQualifyingSchedule < Test::Unit::TestCase
     
     @schedule = Aroundight::QualifyingSchedule.new @start_t, @end_t, 2, 1
     scored = DateTime.new 2016, 12, 23, 18, 0, 0, @now.offset
-    @schedule.add_score! scored, { "qualifying120" => "100", "qualifying2400" => "200", "seed120" => "3000", "seed660" => "4000", "time" => "2016-12-23 18:00:00" }
+    @schedule.add_score! scored, { "qualifying120" => "100", "qualifying2400" => "200", "qualifying3000" => "150", "seed120" => "3000", "seed660" => "4000", "time" => "2016-12-23 18:00:00" }
   end
   
   def teardown
@@ -63,8 +63,8 @@ class TestQualifyingSchedule < Test::Unit::TestCase
       "interval_length" => "1",
       "qualifying_length" => "2",
       "score" => [
-        { "qualifying120" => "1000", "qualifying2400" => "2000", "seed120" => "6000", "seed660" => "5000", "time" => "2016-12-23 10:00:00" },
-        { "qualifying120" => "1500", "qualifying2400" => "2600", "seed120" => "6500", "seed660" => "5600", "time" => "2016-12-23 10:05:00" }
+        { "qualifying120" => "1000", "qualifying2400" => "2000", "qualifying3000" => "1800", "seed120" => "6000", "seed660" => "5000", "time" => "2016-12-23 10:00:00" },
+        { "qualifying120" => "1500", "qualifying2400" => "2600", "qualifying3000" => "1900", "seed120" => "6500", "seed660" => "5600", "time" => "2016-12-23 10:05:00" }
       ]
     })
     assert_equal @schedule.qualifying_start_date, DateTime.new(2016, 12, 22, 19, 0, 0, @now.offset)
@@ -122,7 +122,10 @@ class TestQualifyingSchedule < Test::Unit::TestCase
   
   def test_add_score!
     scored = DateTime.new 2016, 12, 23, 20, 15, 0, @now.offset
-    @schedule.add_score! scored, { "qualifying120" => "1000", "qualifying2400" => "2000", "seed120" => "6000", "seed660" => "5000", "time" => "2016-12-23 20:15:00" }
+    @schedule.add_score! scored, { "qualifying120" => "1000", "qualifying2400" => "2000", "qualifying3000" => "3000","seed120" => "6000", "seed660" => "5000", "time" => "2016-12-23 20:15:00" }
     assert_equal @schedule.instance_variable_get(:@score)[1]["qualifying120"], "1000"
+      
+    @schedule.add_score! scored, { "qualifying120" => "1000", "qualifying2400" => "2000", "qualifying3000" => "3000", "seed120" => "6000", "seed660" => "5000", "time" => "2016-12-23 20:30:00" }
+    assert_equal 2, @schedule.instance_variable_get(:@score).length
   end
 end

@@ -58,22 +58,44 @@ module Aroundight
       }
     end
     
+    def to_bookmaker_starttime date
+      DateTime.new date.year, date.month, date.day, 7, 0, 0, date.offset
+    end
+    
     def def_round_5 d
       def_round = -> (date, duplicate_delegate) {
         round = {
            "datetime" => date.strftime("%Y-%m-%d"),
            "date_of_week" => date.strftime("%w"),
            "score" => [],
-           "term" => (_to_firsttime(date)..to_end_datetime(date,1)),
+           "term" => (to_bookmaker_starttime(date)..to_end_datetime(date,1)),
            "duplicate?" => duplicate_delegate
          }
          def round.cover? date
            self["term"].cover? date
          end
+         
+         def round.last_eql? score
+           eql = true
+           last_score = self["score"].last
+           return false if last_score == nil or last_score.empty?  
+           
+           last_score.each{|k,v|
+             next if k == "time"
+             if score[k] != v
+               eql = false
+               break
+             end
+           }
+           return eql
+         end
+         
          def round.add_score! time, score
-           unless self["duplicate?"].call(self["score"], time) 
-             self["score"] << score 
-             self["score"].sort!{|a,b| a["time"] <=> b["time"]}
+           unless self["duplicate?"].call(self["score"], time)
+             unless last_eql? score
+               self["score"] << score 
+               self["score"].sort!{|a,b| a["time"] <=> b["time"]}
+             end
            end
          end
          round

@@ -7,16 +7,6 @@ require File.expand_path('../../../../lib/aroundight/battlefield/granblue_server
 
 class TestBattlefiedService < Test::Unit::TestCase
   def self.startup
-    Aroundight::GranblueServerRepository.send :prepend, ExtensionTestDouble
-    Aroundight::PublicServerRepository.send :prepend, ExtensionTestDouble
-
-    game_server = Aroundight::GranblueServerRepository.new
-    public_server = Aroundight::PublicServerRepository.new
-    
-    service = Aroundight::BattlefieldService.new
-    service.instance_variable_set(:@game_server, game_server)
-    service.instance_variable_set(:@publish_server, public_server)
-    
     @@start_date =     DateTime.new 2016, 12, 22, 19,  0,  0, DateTime.now.offset
     @@end_date =       DateTime.new 2016, 12, 29, 23, 59, 59, DateTime.now.offset
     @@qualifying2_1 =  DateTime.new 2016, 12, 23, 10, 15,  0, DateTime.now.offset
@@ -33,9 +23,64 @@ class TestBattlefiedService < Test::Unit::TestCase
     @@finals3_9 =      DateTime.new 2016, 12, 27, 14, 30,  0, DateTime.now.offset
     @@finals3_10 =     DateTime.new 2016, 12, 27, 14, 45,  0, DateTime.now.offset
     @@finals4_1 =      DateTime.new 2016, 12, 28, 10,  0,  0, DateTime.now.offset
-    @@finals4_2 =      DateTime.new 2016, 12, 28, 10, 15,  0, DateTime.now.offset
+    @@finals4_2 =      DateTime.new 2016, 12, 28, 10, 15,  0, DateTime.now.offset    
     
-    service.define_battlefield 1,@@start_date,@@end_date,2,1
+    Aroundight::GranblueServerRepository.send :prepend, ExtensionTestDouble
+    Aroundight::PublicServerRepository.send :prepend, ExtensionTestDouble
+
+    @@game_server = Aroundight::GranblueServerRepository.new
+    @@public_server = Aroundight::PublicServerRepository.new
+    
+    @@service = Aroundight::BattlefieldService.new
+    
+    def @@game_server.get_bookmaker_score id, time
+      r = super id, time
+      range_random = 0.8..1.2
+      random = Random.rand()
+      
+      # bookmaker
+      if r["north"] != nil
+        ["west","north","south","east"].each{|key|
+          v = (r[key].to_i * Random.rand(range_random)).round.to_s
+          r[key] = v != "0" ? v : Random.rand(1..100).round.to_s
+        }
+      end
+      r
+    end
+    
+    def @@game_server.get_ranking_score id, time
+      r = super id, time
+      range_random = 0.8..1.2
+      random = Random.rand()
+      
+      # ranking
+      if r["ranking1000"] != nil
+        ["ranking1000","ranking3000","ranking20000"].each{|key|
+          v = (r[key].to_i * Random.rand(range_random)).round.to_s
+          r[key] = v != "0" ? v : Random.rand(1..100).round.to_s
+        }
+      end
+      r
+    end
+    
+    def @@game_server.get_qualifying_score id, time
+      r = super id, time
+      range_random = 0.8..1.2
+      random = Random.rand()
+
+      if r["seed120"] != nil
+        ["seed120","seed660","qualifying120", "qualifying2400", "qualifying3000"].each{|key|
+          v = (r[key].to_i * Random.rand(range_random)).round.to_s
+          r[key] = v != "0" ? v : Random.rand(1..100).round.to_s
+        }
+      end
+      r
+    end
+        
+    @@service.instance_variable_set(:@game_server, @@game_server)
+    @@service.instance_variable_set(:@publish_server, @@public_server)
+    
+    @@service.define_battlefield 1,@@start_date,@@end_date,2,1
   end
   
   def self.shutdown
@@ -52,26 +97,7 @@ class TestBattlefiedService < Test::Unit::TestCase
     # 7  : 2016-12-28 : finals (4)
     # 8  : 2016-12-29 : finals (5)
 
-    game_server = Aroundight::GranblueServerRepository.new
-    public_server = Aroundight::PublicServerRepository.new
     
-    def game_server.get_bookmaker_score id, time
-      r = super id, time
-      range_random = 0.8..1.2
-      random = Random.rand()
-      
-      # bookmaker
-      if r["north"] != nil
-        ["west","north","south","east"].each{|key|
-          r[key] = (r[key].to_i * Random.rand(range_random)).round.to_s
-        }
-      end
-      r
-    end
-    
-    @service = Aroundight::BattlefieldService.new
-    @service.instance_variable_set(:@game_server, game_server)
-    @service.instance_variable_set(:@publish_server, public_server)
     
     @find = -> (score, date){
       score.find(->{[]}){|each| return each if each["time"] == date.strftime("%Y-%m-%d %H:%M:%S")}.first
@@ -80,25 +106,25 @@ class TestBattlefiedService < Test::Unit::TestCase
   
   def test_update_ranking_score
     results = []
-    results << @service.update_ranking_score(1, @@qualifying2_1)
-    results << @service.update_ranking_score(1, @@qualifying2_2)
-    results << @service.update_ranking_score(1, @@interval1)
-    results << @service.update_ranking_score(1, @@finals3_1)
-    results << @service.update_ranking_score(1, @@finals3_2)
-    results << @service.update_ranking_score(1, @@finals3_3)
-    results << @service.update_ranking_score(1, @@finals3_4)
-    results << @service.update_ranking_score(1, @@finals3_5)
-    results << @service.update_ranking_score(1, @@finals3_6)
-    results << @service.update_ranking_score(1, @@finals3_7)
-    results << @service.update_ranking_score(1, @@finals3_8)
-    results << @service.update_ranking_score(1, @@finals3_9)
-    results << @service.update_ranking_score(1, @@finals3_10)
-    results << @service.update_ranking_score(1, @@finals4_1)
-    results << @service.update_ranking_score(1, @@finals4_2)
+    results << @@service.update_ranking_score(1, @@qualifying2_1)
+    results << @@service.update_ranking_score(1, @@qualifying2_2)
+    results << @@service.update_ranking_score(1, @@interval1)
+    results << @@service.update_ranking_score(1, @@finals3_1)
+    results << @@service.update_ranking_score(1, @@finals3_2)
+    results << @@service.update_ranking_score(1, @@finals3_3)
+    results << @@service.update_ranking_score(1, @@finals3_4)
+    results << @@service.update_ranking_score(1, @@finals3_5)
+    results << @@service.update_ranking_score(1, @@finals3_6)
+    results << @@service.update_ranking_score(1, @@finals3_7)
+    results << @@service.update_ranking_score(1, @@finals3_8)
+    results << @@service.update_ranking_score(1, @@finals3_9)
+    results << @@service.update_ranking_score(1, @@finals3_10)
+    results << @@service.update_ranking_score(1, @@finals4_1)
+    results << @@service.update_ranking_score(1, @@finals4_2)
     obj = results.compact.last
     assert_not_nil @find.call(obj["score"], @@qualifying2_1)
     assert_not_nil @find.call(obj["score"], @@qualifying2_2)
-    assert_nil @find.call(obj["score"], @@interval1)
+    assert_not_nil @find.call(obj["score"], @@interval1)
     assert_not_nil @find.call(obj["score"], @@finals3_1)
     assert_not_nil @find.call(obj["score"], @@finals3_2)
     assert_not_nil @find.call(obj["score"], @@finals3_3)
@@ -115,22 +141,23 @@ class TestBattlefiedService < Test::Unit::TestCase
   
   def test_update_qualifying_score
     results = []
-    results << @service.update_qualifying_score(1, @@qualifying2_1)
-    results << @service.update_qualifying_score(1, @@qualifying2_2)
-    results << @service.update_qualifying_score(1, @@interval1)
-    results << @service.update_qualifying_score(1, @@finals3_1)
-    results << @service.update_qualifying_score(1, @@finals3_2)
-    results << @service.update_qualifying_score(1, @@finals3_3)
-    results << @service.update_qualifying_score(1, @@finals3_4)
-    results << @service.update_qualifying_score(1, @@finals3_5)
-    results << @service.update_qualifying_score(1, @@finals3_6)
-    results << @service.update_qualifying_score(1, @@finals3_7)
-    results << @service.update_qualifying_score(1, @@finals3_8)
-    results << @service.update_qualifying_score(1, @@finals3_9)
-    results << @service.update_qualifying_score(1, @@finals3_10)
-    results << @service.update_qualifying_score(1, @@finals4_1)
-    results << @service.update_qualifying_score(1, @@finals4_2)
+    results << @@service.update_qualifying_score(1, @@qualifying2_1)
+    results << @@service.update_qualifying_score(1, @@qualifying2_2)
+    results << @@service.update_qualifying_score(1, @@interval1)
+    results << @@service.update_qualifying_score(1, @@finals3_1)
+    results << @@service.update_qualifying_score(1, @@finals3_2)
+    results << @@service.update_qualifying_score(1, @@finals3_3)
+    results << @@service.update_qualifying_score(1, @@finals3_4)
+    results << @@service.update_qualifying_score(1, @@finals3_5)
+    results << @@service.update_qualifying_score(1, @@finals3_6)
+    results << @@service.update_qualifying_score(1, @@finals3_7)
+    results << @@service.update_qualifying_score(1, @@finals3_8)
+    results << @@service.update_qualifying_score(1, @@finals3_9)
+    results << @@service.update_qualifying_score(1, @@finals3_10)
+    results << @@service.update_qualifying_score(1, @@finals4_1)
+    results << @@service.update_qualifying_score(1, @@finals4_2)
     obj = results.compact.last
+    p obj
     assert_not_nil @find.call(obj["score"], @@qualifying2_1)
     assert_not_nil @find.call(obj["score"], @@qualifying2_2)
     assert_nil @find.call(obj["score"], @@interval1)
@@ -150,21 +177,21 @@ class TestBattlefiedService < Test::Unit::TestCase
   
   def test_update_bookmaker_score
     results = []
-    results << @service.update_bookmaker_score(1, @@qualifying2_1)
-    results << @service.update_bookmaker_score(1, @@qualifying2_2)
-    results << @service.update_bookmaker_score(1, @@interval1)
-    results << @service.update_bookmaker_score(1, @@finals3_1)
-    results << @service.update_bookmaker_score(1, @@finals3_2)
-    results << @service.update_bookmaker_score(1, @@finals3_3)
-    results << @service.update_bookmaker_score(1, @@finals3_4)
-    results << @service.update_bookmaker_score(1, @@finals3_5)
-    results << @service.update_bookmaker_score(1, @@finals3_6)
-    results << @service.update_bookmaker_score(1, @@finals3_7)
-    results << @service.update_bookmaker_score(1, @@finals3_8)
-    results << @service.update_bookmaker_score(1, @@finals3_9)
-    results << @service.update_bookmaker_score(1, @@finals3_10)
-    results << @service.update_bookmaker_score(1, @@finals4_1)
-    results << @service.update_bookmaker_score(1, @@finals4_2)
+    results << @@service.update_bookmaker_score(1, @@qualifying2_1)
+    results << @@service.update_bookmaker_score(1, @@qualifying2_2)
+    results << @@service.update_bookmaker_score(1, @@interval1)
+    results << @@service.update_bookmaker_score(1, @@finals3_1)
+    results << @@service.update_bookmaker_score(1, @@finals3_2)
+    results << @@service.update_bookmaker_score(1, @@finals3_3)
+    results << @@service.update_bookmaker_score(1, @@finals3_4)
+    results << @@service.update_bookmaker_score(1, @@finals3_5)
+    results << @@service.update_bookmaker_score(1, @@finals3_6)
+    results << @@service.update_bookmaker_score(1, @@finals3_7)
+    results << @@service.update_bookmaker_score(1, @@finals3_8)
+    results << @@service.update_bookmaker_score(1, @@finals3_9)
+    results << @@service.update_bookmaker_score(1, @@finals3_10)
+    results << @@service.update_bookmaker_score(1, @@finals4_1)
+    results << @@service.update_bookmaker_score(1, @@finals4_2)
     obj = results.compact.last
     scores = (1..5).map{|each| obj["round#{each}"]["score"]}.flatten
     

@@ -67,6 +67,7 @@ module Aroundight
       {
         "qualifying120" => qualifying_parser.(12),
         "qualifying2400"=> qualifying_parser.(240),
+        "qualifying3000"=> qualifying_parser.(300),
         "seed120"       =>       seed_parser.(12),
         "seed660"       =>       seed_parser.(66),
         "time"=>time.strftime("%Y-%m-%d %H:%M:%S")
