@@ -27,6 +27,11 @@ module Aroundight
     service.update_qualifying_score raidid, date
   end
   
+  def self.ranking_all raidid
+    service = self.create_service
+    service.get_ranking_all raidid
+  end
+  
   def self.define_battlefield raidid, start_date, end_date, qualifying, interval
     service = self.create_service
     date_s = Date.parse start_date

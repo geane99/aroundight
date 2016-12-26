@@ -35,10 +35,15 @@ task :qualifying, ['raidid'] do |task, args|
   Aroundight::qualifying *args
 end
 
+task :ranking_all, ['raidid'] do |task,args|
+  Aroundight::ranking_all *args
+end
+
 
 # crontab
 =begin
+15 12 26 * * cd /data/batch/aroundight; rake ranking_all[26]
 3 */1 * * * cd /data/batch/aroundight; rake ranking[26]
 4,24,44 * 18-20 * * cd /data/batch/aroundight; rake qualifying[26]
-2,17,32,47 * 21-26 * * cd /data/batch/aroundight; rake bookmaker[26]
+6,25,45 * 21-26 * * cd /data/batch/aroundight; rake bookmaker[26]
 =end

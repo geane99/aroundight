@@ -52,6 +52,15 @@ module Aroundight
       }
     end
     
+    def get_ranking_all raidid
+      parser = -> page {
+        url = "#{@conf['server_url']}#{@conf['score_individual_context']}" % [raidid, page]
+        data = http_get url
+        data["list"].values
+      }
+      (1...8000).map{|idx| parser.(idx)}.flatten
+    end
+    
     def get_qualifying_score raidid, time
       parser_base = -> base_url{
         -> (pagenum){
@@ -78,6 +87,10 @@ module Aroundight
       url = "#{@conf['server_url']}#{@conf["update_cookie_context"]}"
       logger.info "[session-update] #{url}"
       res = @server.url(url).get_exec
+      
+      if data["error"] != nil
+        upgrade_connection_info "#{@conf['server_url']}#{@conf['xversion_context']}"
+      end
       update_cookie @conf["cookie"], res.cookie, url
     end
 

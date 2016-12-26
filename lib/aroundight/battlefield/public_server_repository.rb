@@ -36,6 +36,11 @@ module Aroundight
       publish qualifying, filename
     end
     
+    def save_ranking_all raidid, ranking
+      filename = "#{@local_repo_dir}ranking_all_#{raidid}.json"
+      publish ranking, filename
+    end
+    
     def load_bookmaker_schedule id
       hash = load_hash id, "bookmaker"
       bookmaker = BookmakerSchedule.new
@@ -78,3 +83,4 @@ module Aroundight
     end
   end
 end
+

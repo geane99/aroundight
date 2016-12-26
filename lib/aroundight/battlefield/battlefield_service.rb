@@ -80,6 +80,14 @@ module Aroundight
       })
     end
     
+    def get_ranking_all raidid
+      r = @game_server.get_ranking_all(raidid)
+      def r.to_hash 
+        self 
+      end
+      @publish_server.save_ranking_all raidid, r
+    end
+    
     private
     def _update conf
       domain = conf["load"].(@publish_server,conf["raidid"])
@@ -93,3 +101,5 @@ module Aroundight
     end
   end
 end
+
+Aroundight::BattlefieldService.new.get_ranking_all 26
