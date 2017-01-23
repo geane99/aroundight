@@ -101,5 +101,3 @@ module Aroundight
     end
   end
 end
-
-Aroundight::BattlefieldService.new.get_ranking_all 26
