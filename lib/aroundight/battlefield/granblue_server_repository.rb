@@ -73,14 +73,19 @@ module Aroundight
       qualifying_parser = parser_base.("#{@conf['server_url']}#{@conf['score_qualifying_context']}")
       seed_parser = parser_base.("#{@conf['server_url']}#{@conf['score_seed_context']}")
       
-      {
-        "qualifying120" => qualifying_parser.(12),
-        "qualifying2400"=> qualifying_parser.(240),
-        "qualifying3000"=> qualifying_parser.(300),
-        "seed120"       =>       seed_parser.(12),
-        "seed660"       =>       seed_parser.(66),
-        "time"=>time.strftime("%Y-%m-%d %H:%M:%S")
-      }
+      retry_count = 0
+      while retry_count < 2 do
+        score = {
+          "qualifying120" => qualifying_parser.(12),
+          "qualifying2400"=> qualifying_parser.(240),
+          "qualifying3000"=> qualifying_parser.(300),
+          "seed120"       =>       seed_parser.(12),
+          "seed660"       =>       seed_parser.(66),
+          "time"=>time.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        return if score.all?{|k,v| v != nil}
+        retry_count += 1
+      end
     end
     
     def update_connect
