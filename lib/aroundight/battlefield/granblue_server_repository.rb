@@ -83,7 +83,7 @@ module Aroundight
           "seed660"       =>       seed_parser.(66),
           "time"=>time.strftime("%Y-%m-%d %H:%M:%S")
         }
-        return if score.values.all?{|v| v != nil}
+        return score if score.values.all?{|v| v != nil}
         retry_count += 1
       end
     end
