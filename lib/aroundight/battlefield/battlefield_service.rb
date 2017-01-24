@@ -96,6 +96,7 @@ module Aroundight
         return
       end
       score = conf["get"].(@game_server, conf["raidid"], conf["time"])
+      @game_server.logger.info score
       domain.add_score! conf["time"], score
       conf["save"].(@publish_server, domain)
     end
