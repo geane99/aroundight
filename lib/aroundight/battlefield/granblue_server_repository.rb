@@ -83,7 +83,7 @@ module Aroundight
           "seed660"       =>       seed_parser.(66),
           "time"=>time.strftime("%Y-%m-%d %H:%M:%S")
         }
-        return if score.all?{|k,v| v != nil}
+        return if score.values.all?{|v| v != nil}
         retry_count += 1
       end
     end
@@ -118,13 +118,7 @@ module Aroundight
       end
 
       if data["redirect"] != nil
-        redirect_url = mobage_json_redirect data["redirect"]
-        if redirect_url.include? @conf["host"]
-          upgrade_connection_info redirect_url
-        else
-          tokenurl = mobage_platform_redirect redirect_url
-          upgrade_connection_info tokenurl
-        end
+        upgrade_connection_info "#{@conf['server_url']}#{@conf['xversion_context']}"
       end
       
       logger.info "[http-get] #{url}"
