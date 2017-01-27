@@ -39,11 +39,14 @@ task :ranking_all, ['raidid'] do |task,args|
   Aroundight::ranking_all *args
 end
 
-
+task :update_cookie do |task,args|
+  Aroundight::update_connect
+end
 # crontab
 =begin
 15 12 26 * * cd /data/batch/aroundight; rake ranking_all[26]
 3 */1 * * * cd /data/batch/aroundight; rake ranking[26]
 4,24,44 * 18-20 * * cd /data/batch/aroundight; rake qualifying[26]
 6,25,45 * 21-26 * * cd /data/batch/aroundight; rake bookmaker[26]
+10,30,50 * * * * cd /data/batch/aroungiht; rake update_connect
 =end

@@ -89,14 +89,7 @@ module Aroundight
     end
     
     def update_connect
-      url = "#{@conf['server_url']}#{@conf["update_cookie_context"]}"
-      logger.info "[session-update] #{url}"
-      res = @server.url(url).get_exec
-      
-      if data["error"] != nil
-        upgrade_connection_info "#{@conf['server_url']}#{@conf['xversion_context']}"
-      end
-      update_cookie @conf["cookie"], res.cookie, url
+      upgrade_connection_info "#{@conf['server_url']}#{@conf['xversion_context']}"
     end
 
     private
@@ -126,45 +119,6 @@ module Aroundight
       res = @server.url(url).get_exec
       update_cookie @conf["cookie"], res.cookie, url
       data = to_html res.body
-    end
-    
-    def mobage_json_redirect url
-      logger.info "[redirect(json)] #{url}"
-      @server = create_http_repository @conf
-      @server
-        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-        .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
-        .header("Connection", "keep-alive")
-        .header("Cookie", get_cookie(url))
-        .header("Upgrade-Insecure-Requests", "1")
-        .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
-      response = @server.url(url).get_exec
-      redirect_url = response.location
-    end
-    
-    def mobage_platform_redirect url
-      redirect_url = url
-      count = 0
-      while redirect_url != nil and count < 4 do
-        logger.info "[redirect(mobage)] #{redirect_url}"
-        @server = create_http_repository @conf
-        response = @server
-          .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-          .header("Accept-Language", "ja,en-US;q=0.8,en;q=0.6")
-          .header("Connection", "keep-alive")
-          .header("Cookie", get_cookie(redirect_url))
-          .header("Upgrade-Insecure-Requests", "1")
-          .header("Host", redirect_url.split("/")[2])
-          .header("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5")
-          .url(url)
-          .get_exec
-        update_cookie @conf["platform_cookie"], response.cookie, redirect_url
-        re_redirect_url = response.location
-        break if redirect_url.split("?")[0] == re_redirect_url.split("?")[0]
-        redirect_url = re_redirect_url
-
-        count += 1
-      end
     end
     
     def upgrade_connection_info url

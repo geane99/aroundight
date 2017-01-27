@@ -32,6 +32,11 @@ module Aroundight
     service.get_ranking_all raidid
   end
   
+  def self.update_connect
+    service = self.create_service
+    service.update_connect
+  end
+  
   def self.define_battlefield raidid, start_date, end_date, qualifying, interval
     service = self.create_service
     date_s = Date.parse start_date

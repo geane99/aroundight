@@ -88,13 +88,14 @@ module Aroundight
       @publish_server.save_ranking_all raidid, r
     end
     
+    def update_connect
+      @game_server.update_connect
+    end
+    
     private
     def _update conf
       domain = conf["load"].(@publish_server,conf["raidid"])
-      unless domain.cover? conf["time"]
-        @game_server.update_connect
-        return
-      end
+      return unless domain.cover? conf["time"]
       score = conf["get"].(@game_server, conf["raidid"], conf["time"])
       @game_server.logger.info score
       domain.add_score! conf["time"], score
